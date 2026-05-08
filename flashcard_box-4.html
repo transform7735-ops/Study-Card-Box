@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Claude Code 명령어 카드</title>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="ClaudeCode"/>
+<meta name="theme-color" content="#0d1117"/>
+<link rel="manifest" id="manifestLink"/>
+<link rel="apple-touch-icon" id="appleIcon"/>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&family=Lora:ital,wght@0,600;1,400&display=swap');
+:root{
+  --wood-mid:#1e2d3d;--wood-dark:#0d1117;--wood-light:#30a0e0;--wood-hi:#58c8f0;
+  --cream:#e6f0fa;--cream-dark:#c8dff0;--ink:#0d1117;
+  --gold:#4fc3f7;--bg:#0d1117;
+  --ok:#27ae60;--ng:#c0392b;--warn:#e8920a;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{min-height:100%;background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--cream)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 20% 0%,#1a2a4a44 0%,transparent 55%),
+             radial-gradient(ellipse at 80% 100%,#0a1a2a33 0%,transparent 55%)}
+#app{position:relative;z-index:1;padding-bottom:40px}
+
+/* ── 헤더 ── */
+header{text-align:center;padding:18px 20px 10px;position:sticky;top:0;z-index:50;
+  background:rgba(13,17,23,0.93);backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(79,195,247,0.15)}
+header h1{font-family:'Playfair Display',serif;font-size:clamp(16px,5vw,22px);
+  color:var(--gold);letter-spacing:.5px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+header p{font-size:10px;color:rgba(230,240,250,.35);margin-top:2px;letter-spacing:.5px}
+.header-meta{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px}
+#lastStudiedLabel{font-size:10px;color:rgba(79,195,247,0.5)}
+.btn-reset{background:none;border:1px solid rgba(79,195,247,0.2);border-radius:10px;
+  color:rgba(79,195,247,0.45);font-size:10px;padding:3px 9px;cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;transition:all .2s}
+.btn-reset:hover{border-color:rgba(79,195,247,0.5);color:rgba(79,195,247,0.8)}
+
+/* ── PWA 배너 ── */
+#pwaBanner{margin:10px 16px 0;background:rgba(79,195,247,.06);
+  border:1px solid rgba(79,195,247,.2);border-radius:11px;padding:10px 13px;
+  display:flex;align-items:flex-start;gap:9px}
+.pwa-icon{font-size:18px;flex-shrink:0;padding-top:1px}
+.pwa-text{flex:1}
+.pwa-title{font-size:11px;font-weight:700;color:var(--gold);margin-bottom:2px}
+.pwa-steps{font-size:10px;color:rgba(230,240,250,.5);line-height:1.7}
+.pwa-close{background:none;border:none;color:rgba(230,240,250,.3);font-size:15px;cursor:pointer;flex-shrink:0;line-height:1;padding:0}
+
+/* ── 카드 상자 ── */
+#boxSection{padding:10px 16px 8px}
+.box-wrap{background:linear-gradient(160deg,var(--wood-mid) 0%,var(--wood-dark) 60%,#060b10 100%);
+  border-radius:12px 12px 6px 6px;padding:10px 10px 9px;
+  border:1px solid rgba(79,195,247,.25);
+  box-shadow:0 8px 26px rgba(0,0,0,.6),inset 0 1px 0 rgba(79,195,247,.15)}
+.box-label{text-align:center;font-family:'Playfair Display',serif;font-size:9px;
+  color:var(--wood-hi);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;opacity:.75}
+.slots-row{display:flex;gap:4px;align-items:flex-end;height:72px}
+.slot{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;cursor:pointer;transition:transform .15s}
+.slot:active{transform:scale(.95)}
+.slot:nth-child(1){flex:1}.slot:nth-child(3){flex:1.6}.slot:nth-child(5){flex:2.4}
+.slot:nth-child(7){flex:3.4}.slot:nth-child(9){flex:4.8}
+.slot-wall{width:4px;background:linear-gradient(180deg,rgba(79,195,247,.4),rgba(79,195,247,.1));border-radius:2px;align-self:stretch;flex-shrink:0}
+.slot-well{width:100%;height:50px;background:#060a0e;border-radius:3px 3px 2px 2px;
+  border-top:2px solid rgba(79,195,247,.2);position:relative;overflow:hidden;
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.6)}
+.slot-stack{position:absolute;bottom:0;left:2px;right:2px}
+.slot-count{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700}
+.slot-name{font-size:8px;color:rgba(79,195,247,.5)}
+
+/* ── 진행바 ── */
+#progressSection{display:flex;align-items:center;gap:9px;padding:7px 16px 8px}
+.prog-bar{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),#0288d1);border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.prog-label{font-size:11px;color:var(--gold);font-family:'JetBrains Mono',monospace;white-space:nowrap;min-width:44px;text-align:right}
+
+/* ── 학습 섹션 ── */
+#studySection{padding:0 16px;display:flex;flex-direction:column;align-items:center;gap:10px}
+
+/* ── 필터 공통 ── */
+.filter-row{display:flex;gap:5px;width:100%;max-width:420px;overflow-x:auto;padding-bottom:2px}
+.f-btn{flex:0 0 auto;padding:5px 11px;border-radius:20px;
+  border:1px solid rgba(79,195,247,.2);background:rgba(255,255,255,.04);
+  color:rgba(79,195,247,.58);font-size:11px;font-weight:500;cursor:pointer;
+  transition:all .18s;font-family:'Noto Sans KR',sans-serif;white-space:nowrap}
+.f-btn.active{background:var(--gold);color:#0d1117;border-color:var(--gold);font-weight:700}
+
+/* ── 학습 모드 탭 ── */
+#modeBar{display:flex;gap:0;width:100%;max-width:420px;
+  background:rgba(255,255,255,.04);border-radius:12px;padding:3px;
+  border:1px solid rgba(79,195,247,.15)}
+.mode-btn{flex:1;padding:7px 4px;border:none;border-radius:9px;
+  background:transparent;color:rgba(79,195,247,.55);
+  font-size:11px;font-weight:600;cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}
+.mode-btn.active{background:linear-gradient(135deg,#0a1929,#1e3a5f);
+  color:var(--cream);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+
+/* ── 카드 ── */
+.card-scene{width:100%;max-width:420px;cursor:pointer}
+.card-inner{width:100%}
+.card-face{width:100%;border-radius:16px;padding:24px 22px 20px;position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:12px;overflow:visible}
+.card-face.hidden{display:none!important}
+.card-front{background:linear-gradient(145deg,#0f1923 0%,#1a2a3a 100%);
+  border:1px solid rgba(79,195,247,.25);
+  box-shadow:0 6px 26px rgba(0,0,0,.52),inset 0 1px 0 rgba(79,195,247,.12)}
+.card-back{background:linear-gradient(145deg,#0d1f0d 0%,#162b16 100%);
+  border:1px solid rgba(100,200,100,.3);
+  box-shadow:0 6px 26px rgba(0,0,0,.52),inset 0 1px 0 rgba(100,200,100,.1)}
+.card-front.result-ok{border:2px solid var(--ok);box-shadow:0 6px 26px rgba(39,174,96,.3)}
+.card-front.result-ng{border:2px solid var(--ng);box-shadow:0 6px 26px rgba(192,57,43,.3)}
+.card-back.result-ok{border:2px solid var(--ok);box-shadow:0 6px 26px rgba(39,174,96,.3)}
+.card-back.result-ng{border:2px solid var(--ng);box-shadow:0 6px 26px rgba(192,57,43,.3)}
+.card-badge{position:absolute;top:11px;right:12px;width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+.card-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:rgba(79,195,247,.4);font-weight:500}
+/* 앞면: 명령어 — monospace 폰트 */
+.card-q{font-family:'JetBrains Mono',monospace;font-size:clamp(13px,3.8vw,17px);
+  color:#e6f0fa;text-align:center;line-height:1.7;font-weight:700;
+  word-break:break-all;overflow-wrap:break-word;width:100%;
+  background:rgba(0,0,0,.3);padding:10px 14px;border-radius:8px;
+  border:1px solid rgba(79,195,247,.15)}
+/* 뒷면: 설명 — readable font */
+.card-a{font-family:'Lora',serif;font-size:clamp(13px,3.6vw,16px);color:#c8e6c9;
+  text-align:center;line-height:1.7;word-break:keep-all;overflow-wrap:break-word;width:100%}
+.card-a-ko{font-size:11px;color:#4fc3f7;text-align:center;padding:5px 12px;
+  background:rgba(79,195,247,.08);border-radius:20px;font-family:'JetBrains Mono',monospace}
+.card-hint{font-size:11px;color:rgba(79,195,247,.35);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:.7}}
+
+/* ── 빈칸 모드 ── */
+.blank-sentence{font-family:'JetBrains Mono',monospace;font-size:clamp(12px,3.6vw,16px);
+  color:#e6f0fa;text-align:center;line-height:1.9;font-weight:700;
+  word-break:break-all;overflow-wrap:break-word;width:100%;
+  background:rgba(0,0,0,.3);padding:10px 14px;border-radius:8px;
+  border:1px solid rgba(79,195,247,.15)}
+.blank-input-wrap{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px}
+.blank-label-hint{font-size:10px;color:rgba(79,195,247,.45);letter-spacing:.5px}
+.blank-input{
+  width:100%;max-width:320px;padding:10px 14px;border-radius:10px;
+  border:2px solid rgba(79,195,247,.3);background:rgba(0,10,20,.7);
+  font-family:'JetBrains Mono',monospace;font-size:clamp(13px,3.8vw,16px);
+  color:#e6f0fa;text-align:center;outline:none;transition:border-color .2s;
+}
+.blank-input:focus{border-color:var(--gold)}
+.blank-input.correct{border-color:var(--ok);background:rgba(39,174,96,.1)}
+.blank-input.wrong{border-color:var(--ng);background:rgba(192,57,43,.08)}
+.blank-input:disabled{opacity:.8}
+
+/* ── 빈칸 힌트 박스 (영어 설명) ── */
+.blank-ko-hint{
+  width:100%;padding:9px 14px;
+  background:rgba(79,195,247,.06);
+  border:1px dashed rgba(79,195,247,.22);border-radius:10px;text-align:center;
+}
+.blank-ko-hint .ko-hint-label{
+  font-size:9px;color:rgba(79,195,247,.4);letter-spacing:.5px;margin-bottom:4px;
+}
+.blank-ko-hint .ko-hint-text{
+  font-size:12px;color:rgba(180,220,180,.75);
+  font-family:'Lora',serif;line-height:1.6;word-break:keep-all;
+}
+
+.result-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700}
+.result-badge.ok{background:rgba(39,174,96,.15);color:var(--ok);border:1px solid rgba(39,174,96,.4)}
+.result-badge.ng{background:rgba(192,57,43,.12);color:var(--ng);border:1px solid rgba(192,57,43,.35)}
+.answer-highlight{background:rgba(39,174,96,.15);color:#4caf50;padding:2px 8px;border-radius:6px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.answer-highlight.ng{background:rgba(192,57,43,.12);color:var(--ng)}
+.blank-slot{display:inline-block;min-width:80px;padding:0 4px;border-bottom:2.5px solid var(--gold);color:var(--gold);font-weight:700;font-style:normal;background:rgba(79,195,247,.08);border-radius:3px}
+
+.compare-wrap{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px}
+.compare-label{font-size:10px;color:rgba(79,195,247,.4);letter-spacing:.5px;margin-bottom:2px}
+
+/* ── 애니메이션 ── */
+@keyframes flipOut{from{opacity:1;transform:scale(1) rotateY(0)}to{opacity:0;transform:scale(.93) rotateY(75deg)}}
+@keyframes flipIn{from{opacity:0;transform:scale(.93) rotateY(-75deg)}to{opacity:1;transform:scale(1) rotateY(0)}}
+@keyframes appear{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.anim-out{animation:flipOut .2s ease forwards}
+.anim-in{animation:flipIn .2s ease forwards}
+.anim-appear{animation:appear .28s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes bounce2{0%,100%{transform:translateY(0)}40%{transform:translateY(-9px)}65%{transform:translateY(-4px)}}
+.anim-shake{animation:shake .36s ease}
+.anim-bounce{animation:bounce2 .42s ease}
+
+/* ── 버튼 ── */
+.btn-row{display:flex;gap:10px;width:100%;max-width:420px}
+.btn{flex:1;padding:13px 10px;border:none;border-radius:12px;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:transform .12s,opacity .12s;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn:active{transform:scale(.95);opacity:.87}
+.btn-wrong{background:linear-gradient(135deg,#7a1f1f,#c0392b);color:#fff;box-shadow:0 4px 14px rgba(192,57,43,.36)}
+.btn-right{background:linear-gradient(135deg,#1a5a2a,#27ae60);color:#fff;box-shadow:0 4px 14px rgba(39,174,96,.36)}
+.btn-flip{background:linear-gradient(135deg,#0a1929,#1e3a5f);color:var(--cream);border:1px solid rgba(79,195,247,.28);box-shadow:0 4px 14px rgba(0,0,0,.32)}
+.btn-check{background:linear-gradient(135deg,#1a3a6a,#2a6ac0);color:#fff;box-shadow:0 4px 14px rgba(42,106,192,.36)}
+.action-hint{font-size:11px;color:rgba(79,195,247,.35);letter-spacing:.3px;text-align:center}
+
+.no-cards{width:100%;max-width:420px;padding:36px 20px;border-radius:16px;border:2px dashed rgba(79,195,247,.15);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:rgba(79,195,247,.35)}
+.no-cards span{font-size:28px}
+.no-cards p{font-size:12px;letter-spacing:.4px}
+
+/* ── 완료 ── */
+#completion{display:none;position:fixed;inset:0;z-index:200;background:rgba(3,6,10,.94);backdrop-filter:blur(8px);flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;text-align:center}
+#completion.show{display:flex}
+.comp-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);text-shadow:0 0 22px rgba(79,195,247,.5)}
+.comp-sub{font-size:13px;color:rgba(230,240,250,.55);line-height:1.7}
+.btn-restart{padding:13px 30px;background:linear-gradient(135deg,var(--gold),#0288d1);border:none;border-radius:11px;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;color:#0d1117;cursor:pointer;transition:opacity .18s}
+.btn-restart:hover{opacity:.85}
+</style>
+</head>
+<body>
+<div id="app">
+
+<header>
+  <h1>💻 Claude Code 명령어 카드</h1>
+  <p>Larmai Flash Card System</p>
+  <div class="header-meta">
+    <span id="lastStudiedLabel">처음 시작이에요 🎉</span>
+    <button class="btn-reset" onclick="confirmReset()">🗑️ 초기화</button>
+  </div>
+</header>
+
+<div id="pwaBanner">
+  <div class="pwa-icon">📱</div>
+  <div class="pwa-text">
+    <div class="pwa-title">홈 화면에 앱 아이콘 추가하기</div>
+    <div class="pwa-steps" id="pwaSteps">잠시 확인합니다…</div>
+  </div>
+  <button class="pwa-close" onclick="document.getElementById('pwaBanner').style.display='none'">✕</button>
+</div>
+
+<div id="boxSection">
+  <div class="box-wrap">
+    <div class="box-label">📦 학습 카드 상자</div>
+    <div class="slots-row" id="slotsRow"></div>
+  </div>
+</div>
+
+<div id="progressSection">
+  <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-label" id="progLabel">0 / 85</div>
+</div>
+
+<div id="studySection">
+
+  <!-- ① 칸 필터 -->
+  <div class="filter-row" id="slotFilter">
+    <button class="f-btn active" data-slot="all" onclick="setSlot('all',this)">전체</button>
+    <button class="f-btn" data-slot="0" onclick="setSlot(0,this)">칸 1</button>
+    <button class="f-btn" data-slot="1" onclick="setSlot(1,this)">칸 2</button>
+    <button class="f-btn" data-slot="2" onclick="setSlot(2,this)">칸 3</button>
+    <button class="f-btn" data-slot="3" onclick="setSlot(3,this)">칸 4</button>
+    <button class="f-btn" data-slot="4" onclick="setSlot(4,this)">칸 5</button>
+  </div>
+
+  <!-- ② 카테고리 필터 -->
+  <div class="filter-row" id="catFilter">
+    <button class="f-btn active" data-cat="all" onclick="setCat('all',this)">전체</button>
+    <button class="f-btn" onclick="setCat('🚀 CLI',this)">🚀 CLI</button>
+    <button class="f-btn" onclick="setCat('⌨️ Keyboard',this)">⌨️ Keyboard</button>
+    <button class="f-btn" onclick="setCat('/ Slash',this)">/ Slash</button>
+    <button class="f-btn" onclick="setCat('⚙️ Settings',this)">⚙️ Settings</button>
+    <button class="f-btn" onclick="setCat('🔌 MCP',this)">🔌 MCP</button>
+    <button class="f-btn" onclick="setCat('🌍 Env Vars',this)">🌍 Env Vars</button>
+    <button class="f-btn" onclick="setCat('📋 Hooks',this)">📋 Hooks</button>
+    <button class="f-btn" onclick="setCat('🤖 Agent SDK',this)">🤖 Agent SDK</button>
+  </div>
+
+  <!-- ③ 학습 모드 탭 -->
+  <div id="modeBar">
+    <button class="mode-btn active" id="modeBtn0" onclick="setMode(0)">📖 기본</button>
+    <button class="mode-btn" id="modeBtn1" onclick="setMode(1)">🔄 반전</button>
+    <button class="mode-btn" id="modeBtn2" onclick="setMode(2)">✏️ 빈칸</button>
+  </div>
+
+  <div id="cardArea"></div>
+
+  <div class="btn-row" id="answerBtns" style="display:none">
+    <button class="btn btn-wrong" onclick="answer(false)">✗ 틀렸어요</button>
+    <button class="btn btn-right" onclick="answer(true)">✓ 알겠어요</button>
+  </div>
+
+  <div class="btn-row" id="flipBtnRow">
+    <button class="btn btn-flip" onclick="flipCard()">🔍 뒤집어 보기</button>
+  </div>
+
+  <div class="btn-row" id="checkBtnRow" style="display:none">
+    <button class="btn btn-check" onclick="checkBlank()">🔍 정답 확인</button>
+  </div>
+
+  <div class="btn-row" id="nextBtnRow" style="display:none">
+    <button class="btn btn-wrong" onclick="answer(false)" id="blankWrong">✗ 틀렸어요</button>
+    <button class="btn btn-right" onclick="answer(true)" id="blankRight">✓ 알겠어요</button>
+  </div>
+
+  <div class="action-hint" id="actionHint">카드를 탭하거나 버튼을 눌러 뒤집어 보세요</div>
+
+</div>
+
+<div id="completion">
+  <div style="font-size:48px">🎊</div>
+  <div class="comp-title">Excellent!</div>
+  <div class="comp-sub">All cards in the selected box completed.<br>Repeat regularly to retain commands!</div>
+  <button class="btn-restart" onclick="restartSession()">🔄 다시 학습하기</button>
+</div>
+
+</div>
+<script>
+/* ── PWA ── */
+(function(){
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+    <rect width="512" height="512" rx="90" fill="#0d1117"/>
+    <rect x="60" y="140" width="392" height="250" rx="18" fill="#1e2d3d" stroke="#4fc3f7" stroke-width="3"/>
+    <rect x="80" y="165" width="352" height="180" rx="10" fill="#060a0e"/>
+    <text x="256" y="275" text-anchor="middle" font-size="36" font-family="JetBrains Mono,monospace" fill="#4fc3f7" font-weight="700">claude --help</text>
+    <rect x="80" y="353" width="60" height="17" rx="4" fill="#27ae60" opacity=".8"/>
+    <rect x="150" y="353" width="100" height="17" rx="4" fill="#1e3a5f" opacity=".6"/>
+    <text x="256" y="108" text-anchor="middle" font-size="52" fill="#4fc3f7">💻</text>
+  </svg>`;
+  const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
+  document.getElementById('appleIcon').href=url;
+  document.getElementById('appleIcon').sizes='180x180';
+  const mf={name:"Claude Code 명령어 카드",short_name:"ClaudeCode",
+    description:"Claude Code CLI commands and features flashcard system",
+    start_url:location.href,display:"standalone",
+    background_color:"#0d1117",theme_color:"#0d1117",orientation:"portrait-primary",
+    icons:[{src:url,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
+  document.getElementById('manifestLink').href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/json'}));
+  const ua=navigator.userAgent, el=document.getElementById('pwaSteps');
+  if(/iPhone|iPad|iPod/.test(ua))
+    el.innerHTML='① 하단 <b style="color:#4fc3f7">공유 (⬆️)</b> 탭 → ② <b style="color:#4fc3f7">홈 화면에 추가</b> → ③ <b style="color:#4fc3f7">추가</b>';
+  else if(/Android/.test(ua))
+    el.innerHTML='① <b style="color:#4fc3f7">⋮ 메뉴</b> 탭 → ② <b style="color:#4fc3f7">앱 설치 / 홈 화면에 추가</b> → ③ <b style="color:#4fc3f7">설치</b>';
+  else el.innerHTML='PC에서도 사용 가능! 북마크하면 편리해요. 📌';
+})();
+
+/* ── 카드 데이터 (85개) ──
+   q  = Command / Syntax (front)
+   a  = Explanation      (back)
+   tip = Category
+*/
+const CARDS_DATA=[
+  /* ──── 🚀 CLI Flags (19) ──── */
+  {q:"claude",
+   a:"Launch Claude Code in interactive REPL mode in the current directory. Type your task and press Enter.",
+   tip:"🚀 CLI"},
+  {q:'claude "your prompt here"',
+   a:'Start Claude Code with an initial prompt. Claude responds, then enters interactive mode.',
+   tip:"🚀 CLI"},
+  {q:"claude --print\nclaude -p \"prompt\"",
+   a:"Non-interactive mode. Print the response to stdout and exit. Perfect for scripts and shell pipes.",
+   tip:"🚀 CLI"},
+  {q:"claude --model <model-id>\nclaude -m <model-id>",
+   a:"Specify the Claude model to use (e.g. claude-opus-4-5, claude-sonnet-4-5, claude-haiku-4-5).",
+   tip:"🚀 CLI"},
+  {q:"claude --continue\nclaude -c",
+   a:"Resume the most recent conversation session, restoring full context.",
+   tip:"🚀 CLI"},
+  {q:"claude --resume <session-id>\nclaude -r <session-id>",
+   a:"Resume a specific past conversation by its session ID (shown in /cost or JSON output).",
+   tip:"🚀 CLI"},
+  {q:"claude --verbose",
+   a:"Enable verbose logging. Prints detailed debug info, tool calls, and internal state during execution.",
+   tip:"🚀 CLI"},
+  {q:"claude --output-format text",
+   a:"Output the response as plain text (default for interactive mode). No metadata.",
+   tip:"🚀 CLI"},
+  {q:"claude --output-format json",
+   a:"Output as a JSON object including the response, cost, session ID, and other metadata.",
+   tip:"🚀 CLI"},
+  {q:"claude --output-format stream-json",
+   a:"Stream the response as newline-delimited JSON events in real time. Useful for programmatic consumers.",
+   tip:"🚀 CLI"},
+  {q:"claude --no-ansi",
+   a:"Disable ANSI color codes and terminal formatting. Use when piping output to files or other tools.",
+   tip:"🚀 CLI"},
+  {q:"claude --add-dir <path>",
+   a:"Grant Claude read access to an additional directory outside the current working directory.",
+   tip:"🚀 CLI"},
+  {q:"claude --allowedTools <list>",
+   a:"Comma-separated whitelist of tools Claude may use this session (e.g. Bash,Read,Write).",
+   tip:"🚀 CLI"},
+  {q:"claude --disallowedTools <list>",
+   a:"Comma-separated blacklist of tools Claude may NOT use this session.",
+   tip:"🚀 CLI"},
+  {q:"claude --max-turns <n>",
+   a:"Limit the maximum number of agentic turns Claude can take before stopping. Prevents runaway loops.",
+   tip:"🚀 CLI"},
+  {q:"claude --system-prompt \"text\"",
+   a:"Override the default system prompt with custom instructions for this session only.",
+   tip:"🚀 CLI"},
+  {q:"claude --mcp-config <file.json>",
+   a:"Load MCP server configuration from a specified JSON file instead of the default config.",
+   tip:"🚀 CLI"},
+  {q:"claude --dangerously-skip-permissions",
+   a:"Skip all permission prompts automatically. Use ONLY in trusted, automated CI/CD environments.",
+   tip:"🚀 CLI"},
+  {q:"claude --input-format stream-json",
+   a:"Accept streaming JSON as stdin input, enabling programmatic multi-turn conversation pipelines.",
+   tip:"🚀 CLI"},
+
+  /* ──── ⌨️ Keyboard Shortcuts (6) ──── */
+  {q:"Ctrl + C",
+   a:"Cancel the current running operation immediately, or clear the current input line.",
+   tip:"⌨️ Keyboard"},
+  {q:"Ctrl + D",
+   a:"Exit Claude Code by sending EOF (end-of-file). Equivalent to typing /exit.",
+   tip:"⌨️ Keyboard"},
+  {q:"↑ / ↓  Arrow Keys",
+   a:"Navigate through previous inputs in the session history.",
+   tip:"⌨️ Keyboard"},
+  {q:"Shift + Tab",
+   a:"Cycle through input modes: Auto → Edit → Bash. In Bash mode, input is executed directly as a shell command.",
+   tip:"⌨️ Keyboard"},
+  {q:"Escape",
+   a:"Clear the current input line without submitting it.",
+   tip:"⌨️ Keyboard"},
+  {q:"Ctrl + L",
+   a:"Clear the terminal screen while keeping conversation history intact.",
+   tip:"⌨️ Keyboard"},
+
+  /* ──── / Slash Commands (22) ──── */
+  {q:"/help",
+   a:"Display help information listing all available slash commands and their descriptions.",
+   tip:"/ Slash"},
+  {q:"/clear",
+   a:"Clear the current conversation history and start fresh, while staying in the same session.",
+   tip:"/ Slash"},
+  {q:"/compact [instructions]",
+   a:"Summarize and compact the conversation history to save context-window tokens. Optional custom summary instructions.",
+   tip:"/ Slash"},
+  {q:"/config",
+   a:"Open the Claude Code configuration settings editor to modify preferences interactively.",
+   tip:"/ Slash"},
+  {q:"/cost",
+   a:"Display the total token usage and estimated API cost accumulated in the current session.",
+   tip:"/ Slash"},
+  {q:"/doctor",
+   a:"Run health checks on your Claude Code installation, API key, and environment configuration.",
+   tip:"/ Slash"},
+  {q:"/exit  or  /quit",
+   a:"Exit Claude Code cleanly, saving session state.",
+   tip:"/ Slash"},
+  {q:"/init",
+   a:"Analyze the current project and auto-generate a CLAUDE.md file with architecture and command documentation.",
+   tip:"/ Slash"},
+  {q:"/login",
+   a:"Switch to a different Anthropic account or re-authenticate the current one.",
+   tip:"/ Slash"},
+  {q:"/logout",
+   a:"Sign out from your current Anthropic account, clearing stored credentials.",
+   tip:"/ Slash"},
+  {q:"/memory",
+   a:"Open CLAUDE.md memory files in your editor to update persistent project instructions.",
+   tip:"/ Slash"},
+  {q:"/model",
+   a:"Interactively select the Claude model to use for the rest of the current session.",
+   tip:"/ Slash"},
+  {q:"/permissions",
+   a:"View and manage tool permissions, allowlists, and denylists for the current session.",
+   tip:"/ Slash"},
+  {q:"/review",
+   a:"Request a structured code review of the current branch's staged and unstaged changes.",
+   tip:"/ Slash"},
+  {q:"/status",
+   a:"Show current account info, selected model, token limits, and system health status.",
+   tip:"/ Slash"},
+  {q:"/terminal-setup",
+   a:"Configure terminal integration settings, such as enabling Shift+Enter for multi-line input.",
+   tip:"/ Slash"},
+  {q:"/vim",
+   a:"Toggle vim keybindings for the input editor (normal/insert/visual modes).",
+   tip:"/ Slash"},
+  {q:"/bug",
+   a:"Report a bug to Anthropic, automatically attaching relevant session context.",
+   tip:"/ Slash"},
+  {q:"/mcp",
+   a:"View the connection status and available tools of all configured MCP servers.",
+   tip:"/ Slash"},
+  {q:"/fast",
+   a:"Toggle Fast Mode, which uses Claude Opus 4.6 with faster output streaming.",
+   tip:"/ Slash"},
+  {q:"/ultrareview",
+   a:"Launch a multi-agent cloud review of the current branch. Use /ultrareview <PR#> for a GitHub PR.",
+   tip:"/ Slash"},
+  {q:"# input prefix",
+   a:"Prefix your message with # to store it as a memory (saved to CLAUDE.md), persisting across sessions.",
+   tip:"/ Slash"},
+
+  /* ──── ⚙️ Settings (10) ──── */
+  {q:"CLAUDE.md",
+   a:"Project instructions file auto-read by Claude. Place in project root or subdirectories. Contains commands, architecture, and guidelines.",
+   tip:"⚙️ Settings"},
+  {q:"~/.claude/settings.json",
+   a:"Global user-level settings file. Applies to all projects. Highest priority for personal preferences.",
+   tip:"⚙️ Settings"},
+  {q:".claude/settings.json",
+   a:"Project-level settings file. Committed to git and shared with all team members.",
+   tip:"⚙️ Settings"},
+  {q:".claude/settings.local.json",
+   a:"Local project settings override. Gitignored by default — for personal preferences not shared with the team.",
+   tip:"⚙️ Settings"},
+  {q:"permissions.allow  (settings)",
+   a:"Array of tool + pattern strings that are pre-approved without prompting. E.g. [\"Bash(npm run *)\", \"Read\"].",
+   tip:"⚙️ Settings"},
+  {q:"permissions.deny  (settings)",
+   a:"Array of tool + pattern strings that are always blocked, regardless of any request.",
+   tip:"⚙️ Settings"},
+  {q:"hooks  (settings)",
+   a:"Shell commands triggered by Claude lifecycle events. Keys: PreToolUse, PostToolUse, Notification, Stop, SubagentStop.",
+   tip:"⚙️ Settings"},
+  {q:"defaultModel  (settings)",
+   a:"Set the default Claude model used when none is specified on the command line.",
+   tip:"⚙️ Settings"},
+  {q:"env  (settings)",
+   a:"Key-value pairs of environment variables injected into every Claude session from settings.",
+   tip:"⚙️ Settings"},
+  {q:"autoUpdaterStatus  (settings)",
+   a:"Controls automatic updates. Values: \"enabled\" (default) | \"disabled\". Set in global settings.",
+   tip:"⚙️ Settings"},
+
+  /* ──── 🔌 MCP (8) ──── */
+  {q:"claude mcp add <name> <command>",
+   a:"Add a new stdio-based MCP server. Claude spawns <command> as a subprocess and communicates via stdin/stdout.",
+   tip:"🔌 MCP"},
+  {q:"claude mcp add --transport http <name> <url>",
+   a:"Add an HTTP-based MCP server at the given URL. Uses HTTP POST for requests.",
+   tip:"🔌 MCP"},
+  {q:"claude mcp add --transport sse <name> <url>",
+   a:"Add a Server-Sent Events (SSE) MCP server. Server pushes events over a persistent HTTP connection.",
+   tip:"🔌 MCP"},
+  {q:"claude mcp list",
+   a:"List all configured MCP servers with their names, transport types, and connection status.",
+   tip:"🔌 MCP"},
+  {q:"claude mcp remove <name>",
+   a:"Remove a configured MCP server by name from the active configuration scope.",
+   tip:"🔌 MCP"},
+  {q:"claude mcp get <name>",
+   a:"Display detailed configuration for a specific MCP server: command, args, env, transport.",
+   tip:"🔌 MCP"},
+  {q:"claude mcp reset-project-choices",
+   a:"Clear all remembered approval/denial choices for MCP servers scoped to the current project.",
+   tip:"🔌 MCP"},
+  {q:"claude mcp serve",
+   a:"Start Claude itself as an MCP server, exposing its tools so other MCP clients can use Claude.",
+   tip:"🔌 MCP"},
+
+  /* ──── 🌍 Environment Variables (8) ──── */
+  {q:"ANTHROPIC_API_KEY",
+   a:"API key for authenticating requests to Anthropic. Required unless using Bedrock or Vertex.",
+   tip:"🌍 Env Vars"},
+  {q:"ANTHROPIC_BASE_URL",
+   a:"Override the default Anthropic API endpoint. Useful for proxies or custom API gateways.",
+   tip:"🌍 Env Vars"},
+  {q:"CLAUDE_CODE_MAX_OUTPUT_TOKENS",
+   a:"Cap the maximum number of output tokens per Claude response to control cost.",
+   tip:"🌍 Env Vars"},
+  {q:"CLAUDE_CODE_USE_BEDROCK=1",
+   a:"Route API calls through AWS Bedrock instead of Anthropic directly. Requires AWS credentials.",
+   tip:"🌍 Env Vars"},
+  {q:"CLAUDE_CODE_USE_VERTEX=1",
+   a:"Route API calls through Google Vertex AI instead of Anthropic directly. Requires GCP credentials.",
+   tip:"🌍 Env Vars"},
+  {q:"BASH_MAX_TIMEOUT_MS",
+   a:"Maximum time in milliseconds to wait for a Bash command to complete before timing out.",
+   tip:"🌍 Env Vars"},
+  {q:"HTTP_PROXY / HTTPS_PROXY",
+   a:"Configure proxy server for outbound HTTP/HTTPS connections from Claude Code.",
+   tip:"🌍 Env Vars"},
+  {q:"CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1",
+   a:"Disable non-essential outbound requests such as telemetry and update checks.",
+   tip:"🌍 Env Vars"},
+
+  /* ──── 📋 Hooks (5) ──── */
+  {q:"PreToolUse  hook",
+   a:"Shell command fired BEFORE Claude calls any tool. Receives tool name + input via stdin JSON. Can block the call by exiting non-zero.",
+   tip:"📋 Hooks"},
+  {q:"PostToolUse  hook",
+   a:"Shell command fired AFTER a tool completes. Receives tool name, input, and output via stdin JSON.",
+   tip:"📋 Hooks"},
+  {q:"Notification  hook",
+   a:"Shell command fired when Claude emits a notification (e.g. task complete, awaiting input). Good for system alerts.",
+   tip:"📋 Hooks"},
+  {q:"Stop  hook",
+   a:"Shell command fired when the top-level Claude agent finishes responding (conversation turn ends).",
+   tip:"📋 Hooks"},
+  {q:"SubagentStop  hook",
+   a:"Shell command fired when a subagent spawned via the Agent tool completes its task.",
+   tip:"📋 Hooks"},
+
+  /* ──── 🤖 Agent SDK Tools (11) ──── */
+  {q:"Bash  tool",
+   a:"Execute shell commands. Returns stdout, stderr, and exit code. Use for build, test, git, and system operations.",
+   tip:"🤖 Agent SDK"},
+  {q:"Read  tool",
+   a:"Read file contents from the filesystem. Supports offset and limit parameters for large files.",
+   tip:"🤖 Agent SDK"},
+  {q:"Write  tool",
+   a:"Create or completely overwrite a file. Prefer Edit tool for partial modifications.",
+   tip:"🤖 Agent SDK"},
+  {q:"Edit  tool",
+   a:"Make precise string replacements in existing files. Sends only the diff, making it faster than Write.",
+   tip:"🤖 Agent SDK"},
+  {q:"Glob  tool",
+   a:"Find files matching a glob pattern (e.g. **/*.ts). Returns paths sorted by modification time.",
+   tip:"🤖 Agent SDK"},
+  {q:"Grep  tool",
+   a:"Search file contents using regex via ripgrep. Supports glob filters, output modes, and context lines.",
+   tip:"🤖 Agent SDK"},
+  {q:"WebSearch  tool",
+   a:"Search the web and return relevant results with titles, URLs, and text snippets.",
+   tip:"🤖 Agent SDK"},
+  {q:"WebFetch  tool",
+   a:"Fetch and read the full content of a URL. Useful for reading docs, APIs, and web pages.",
+   tip:"🤖 Agent SDK"},
+  {q:"Agent  tool",
+   a:"Spawn a subagent to handle complex, multi-step tasks independently. Supports isolation via worktrees.",
+   tip:"🤖 Agent SDK"},
+  {q:"TodoWrite  tool",
+   a:"Create and update a structured task list to track progress on multi-step work within a session.",
+   tip:"🤖 Agent SDK"},
+  {q:"NotebookEdit  tool",
+   a:"Edit Jupyter notebook cells (.ipynb). Supports inserting, updating, and deleting cells.",
+   tip:"🤖 Agent SDK"},
+];
+
+/* ── 빈칸 핵심 단어 추출 ── */
+const STOP = new Set([
+  'a','an','the','is','are','was','were','be','been','being',
+  'i','you','he','she','it','we','they','my','your','his','her','our',
+  'this','that','here','there','in','on','at','to','for','of','with',
+  'can','could','do','does','did','have','has','had','will','would',
+  'please','like','get','go','take','make','come','from','up','not',
+  'me','him','us','them','and','or','but','so','if','how','what',
+  'where','when','who','any','all','some','much','more','very','just',
+  'right','long','good','new','old','big','small',
+  // Command-context: don't blank the tool name itself
+  'claude','tool','cmd','set','use','run','type',
+]);
+
+function pickBlankWord(sentence){
+  const tokens = sentence.match(/[a-zA-Z']+/g) || [];
+  const candidates = tokens.filter(w =>
+    w.length >= 4 && !STOP.has(w.toLowerCase()) && !/^\d+$/.test(w)
+  );
+  if(!candidates.length) return null;
+  candidates.sort((a,b) => b.length - a.length);
+  return candidates[0];
+}
+
+function makeBlankHTML(sentence, blankWord){
+  if(!blankWord) return {html: sentence, word: null};
+  const re = new RegExp('\\b' + blankWord.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b','i');
+  const html = sentence.replace(re,
+    `<span class="blank-slot" id="blankSlot">_____</span>`
+  );
+  return {html, word: blankWord};
+}
+
+/* ── 저장 ── */
+const SAVE_KEY='claudeCards_v1';
+function saveProgress(){
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({
+    slots:cards.map(c=>c.slot), lastStudied:new Date().toISOString()
+  }));}catch(e){}
+}
+function loadProgress(){
+  try{
+    const d=JSON.parse(localStorage.getItem(SAVE_KEY));
+    if(d&&d.slots){d.slots.forEach((s,i)=>{if(cards[i])cards[i].slot=s;});return d;}
+  }catch(e){}return null;
+}
+function resetProgress(){
+  localStorage.removeItem(SAVE_KEY);
+  cards.forEach(c=>c.slot=0);
+  refreshBox();updateProgress();buildQueue();renderCard();
+  showToast('🗑️ 진행 내역이 초기화되었어요');
+}
+function confirmReset(){
+  if(confirm('처음부터 다시 시작할까요?\n모든 진행 내역이 사라져요.'))resetProgress();
+}
+function formatDate(iso){
+  if(!iso)return '';
+  const d=Math.floor((Date.now()-new Date(iso))/86400000);
+  return d===0?'오늘':d===1?'어제':d+'일 전';
+}
+
+/* ── Toast ── */
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';
+    t.style.cssText='position:fixed;bottom:26px;left:50%;transform:translateX(-50%);'+
+      'background:rgba(6,10,16,0.96);border:1px solid rgba(79,195,247,0.35);'+
+      'color:#e6f0fa;font-size:12px;padding:9px 18px;border-radius:20px;'+
+      'z-index:999;pointer-events:none;transition:opacity .3s;white-space:nowrap;'+
+      'font-family:"Noto Sans KR",sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.5);';
+    document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2600);
+}
+
+/* ── 상태 ── */
+const COLORS=['#4a6cf7','#e8920a','#1a9e4a','#9b30c0','#c02020'];
+const NAMES=['칸 1','칸 2','칸 3','칸 4','칸 5'];
+let cards=CARDS_DATA.map((d,i)=>({...d,id:i,slot:0}));
+let queue=[],qi=0,flipped=false,fil='all',cat='all',done=new Set();
+let mode=0;
+let blankWord=null,blankChecked=false,blankCorrect=false;
+
+/* ── 카드 상자 UI ── */
+function buildBox(){
+  const row=document.getElementById('slotsRow');row.innerHTML='';
+  for(let i=0;i<5;i++){
+    if(i>0){const w=document.createElement('div');w.className='slot-wall';row.appendChild(w);}
+    const s=document.createElement('div');s.className='slot';s.id='sl'+i;
+    s.onclick=()=>setSlot(i,document.querySelector(`#slotFilter .f-btn[data-slot="${i}"]`));
+    s.innerHTML=`<div class="slot-well"><div class="slot-stack" id="stk${i}"></div></div>
+      <div class="slot-count" style="color:${COLORS[i]}" id="cnt${i}">0</div>
+      <div class="slot-name">${NAMES[i]}</div>`;
+    row.appendChild(s);
+  }refreshBox();
+}
+function refreshBox(){
+  for(let i=0;i<5;i++){
+    const n=cards.filter(c=>c.slot===i).length;
+    const ce=document.getElementById('cnt'+i);
+    const se=document.getElementById('stk'+i);
+    if(ce)ce.textContent=n;if(!se)continue;se.innerHTML='';if(!n)continue;
+    const h=Math.max(6,Math.round(n/cards.length*48));
+    const layers=Math.min(n,6);
+    for(let j=0;j<layers;j++){
+      const d=document.createElement('div');
+      d.style.cssText=`position:absolute;bottom:${j*3}px;left:0;right:0;height:${Math.max(4,h-j*2)}px;border-radius:3px 3px 0 0;background:${COLORS[i]};opacity:${0.3+j*0.12};`;
+      se.appendChild(d);}
+    const top=document.createElement('div');
+    top.style.cssText=`position:absolute;bottom:${(layers-1)*3}px;left:0;right:0;height:${Math.max(7,h)}px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,${COLORS[i]}e0,${COLORS[i]}80);box-shadow:0 -2px 5px ${COLORS[i]}55;`;
+    se.appendChild(top);
+  }
+}
+
+/* ── 큐 ── */
+function buildQueue(){
+  let src=[...cards];
+  if(fil!=='all')src=src.filter(c=>c.slot===fil);
+  if(cat!=='all')src=src.filter(c=>c.tip&&c.tip.startsWith(cat));
+  for(let i=src.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[src[i],src[j]]=[src[j],src[i]];}
+  queue=[...src];qi=0;done.clear();
+}
+
+/* ── 모드 선택 ── */
+function setMode(m){
+  mode=m;
+  [0,1,2].forEach(i=>document.getElementById('modeBtn'+i).classList.toggle('active',i===m));
+  buildQueue();renderCard();
+  const labels=['📖 기본 모드 (명령어 → 설명)','🔄 반전 모드 (설명 → 명령어)','✏️ 빈칸 채우기 모드'];
+  showToast(labels[m]);
+}
+
+/* ── 카드 렌더 ── */
+function renderCard(){
+  const area=document.getElementById('cardArea');
+  const fRow=document.getElementById('flipBtnRow');
+  const aRow=document.getElementById('answerBtns');
+  const cRow=document.getElementById('checkBtnRow');
+  const nRow=document.getElementById('nextBtnRow');
+  const hint=document.getElementById('actionHint');
+  flipped=false;blankWord=null;blankChecked=false;blankCorrect=false;
+  fRow.style.display='none';aRow.style.display='none';
+  cRow.style.display='none';nRow.style.display='none';
+
+  if(!queue.length||qi>=queue.length){
+    area.innerHTML=`<div class="no-cards"><span>🤔</span><p>No cards in this selection</p></div>`;
+    hint.textContent='다른 칸 또는 카테고리를 선택해 보세요';return;
+  }
+
+  const c=queue[qi];
+
+  if(mode===0){
+    // 기본: Command (front) → Explanation (back)
+    area.innerHTML=buildCardHTML(c,
+      'Command · Syntax',
+      `<div class="card-q">${c.q.replace(/\n/g,'<br>')}</div><div class="card-hint">Tap to see explanation 👆</div>`,
+      'Explanation · Description',
+      `<div class="card-a">${c.a}</div><div class="card-a-ko">${c.tip}</div>`
+    );
+    fRow.style.display='flex';
+    hint.textContent=`${qi+1} / ${queue.length} cards`;
+
+  } else if(mode===1){
+    // 반전: Explanation (front) → Command (back)
+    area.innerHTML=buildCardHTML(c,
+      'Description · Explanation',
+      `<div class="card-a" style="color:#c8dff0">${c.a}</div><div style="font-size:10px;color:rgba(79,195,247,.35);margin-top:2px">${c.tip}</div><div class="card-hint">Recall the command 💻</div>`,
+      'Command · Syntax',
+      `<div class="card-q">${c.q.replace(/\n/g,'<br>')}</div>`
+    );
+    fRow.style.display='flex';
+    hint.textContent=`${qi+1} / ${queue.length} cards`;
+
+  } else {
+    // 빈칸: Fill in part of the command
+    const firstLine = c.q.split('\n')[0]; // use first line for blank
+    blankWord = pickBlankWord(firstLine);
+    const {html: blankHTML} = makeBlankHTML(firstLine, blankWord);
+
+    area.innerHTML=`
+      <div class="card-scene anim-appear" id="cScene">
+        <div class="card-inner">
+          <div class="card-face card-front" id="cFront">
+            <div class="card-badge" style="background:${COLORS[c.slot]}">${c.slot+1}</div>
+            <div class="card-label">✏️ Fill in the Blank</div>
+            <div class="blank-sentence">${blankHTML}</div>
+            <div class="blank-input-wrap">
+              <div class="blank-label-hint">⌨️ Type the missing word</div>
+              <input class="blank-input" id="blankInput" type="text"
+                placeholder="type here…"
+                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();event.stopPropagation();checkBlank();return false;}"
+                onkeyup="if(event.key==='Enter'){event.preventDefault();return false;}"/>
+            </div>
+            <!-- 설명 힌트: 설명을 보고 빈 단어를 유추 -->
+            <div class="blank-ko-hint">
+              <div class="ko-hint-label">💡 Description (hint)</div>
+              <div class="ko-hint-text">${c.a}</div>
+            </div>
+            <div style="font-size:10px;color:rgba(79,195,247,.3)">${c.tip}</div>
+          </div>
+          <div class="card-face card-back hidden" id="cBack">
+            <div class="card-badge" style="background:${COLORS[c.slot]}">${c.slot+1}</div>
+            <div class="card-label" id="backLabel">Result</div>
+            <div class="compare-wrap" id="compareWrap"></div>
+            <div class="card-a-ko">${c.tip}</div>
+          </div>
+        </div>
+      </div>`;
+
+    cRow.style.display='flex';
+    hint.textContent=`${qi+1} / ${queue.length} — fill the blank, then tap Confirm`;
+    setTimeout(()=>{
+      const inp=document.getElementById('blankInput');
+      if(!inp)return;
+      inp.focus();
+      inp.addEventListener('keydown',function(e){
+        if(e.key==='Enter'){e.preventDefault();e.stopPropagation();checkBlank();return false;}
+      });
+      inp.addEventListener('keyup',function(e){
+        if(e.key==='Enter'){e.preventDefault();return false;}
+      });
+    },300);
+  }
+}
+
+function buildCardHTML(c, frontLabel, frontContent, backLabel, backContent){
+  return `
+    <div class="card-scene anim-appear" id="cScene" onclick="flipCard()">
+      <div class="card-inner">
+        <div class="card-face card-front" id="cFront">
+          <div class="card-badge" style="background:${COLORS[c.slot]}">${c.slot+1}</div>
+          <div class="card-label">${frontLabel}</div>
+          ${frontContent}
+        </div>
+        <div class="card-face card-back hidden" id="cBack">
+          <div class="card-badge" style="background:${COLORS[c.slot]}">${c.slot+1}</div>
+          <div class="card-label">${backLabel}</div>
+          ${backContent}
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── 빈칸 정답 확인 ── */
+function checkBlank(){
+  const inp=document.getElementById('blankInput');
+  if(!inp)return;
+  const userVal=inp.value.trim();
+  if(!userVal){showToast('⌨️ Type a word first');inp.focus();return;}
+
+  const c=queue[qi];
+  const correct=blankWord||'';
+  const normalize=s=>s.toLowerCase().trim().replace(/['']/g,"'");
+  blankCorrect = normalize(userVal)===normalize(correct);
+  blankChecked=true;
+
+  inp.classList.add(blankCorrect?'correct':'wrong');
+  inp.disabled=true;
+  const front=document.getElementById('cFront');
+  if(front) front.classList.add(blankCorrect?'result-ok':'result-ng');
+
+  const compareWrap=document.getElementById('compareWrap');
+  const backLabel=document.getElementById('backLabel');
+  if(compareWrap){
+    const firstLine = c.q.split('\n')[0];
+    const fullSentence = firstLine.replace(
+      new RegExp('\\b'+correct.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','i'),
+      `<span class="answer-highlight${blankCorrect?'':' ng'}">${correct}</span>`
+    );
+    compareWrap.innerHTML=`
+      <div style="text-align:center">
+        <div class="result-badge ${blankCorrect?'ok':'ng'}">
+          ${blankCorrect?'✅ Correct!':'❌ Incorrect'}
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div class="compare-label">Your answer</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:${blankCorrect?'#4caf50':'#c0392b'};font-weight:700">${userVal}</div>
+      </div>
+      <div style="text-align:center">
+        <div class="compare-label">Correct answer</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#c8dff0;line-height:1.7">${fullSentence}</div>
+      </div>
+      <div style="text-align:center">
+        <div class="compare-label">Explanation</div>
+        <div style="font-family:'Lora',serif;font-size:12px;color:#c8e6c9">${c.a}</div>
+      </div>`;
+    if(backLabel)backLabel.textContent=blankCorrect?'✅ Correct':'❌ Incorrect';
+  }
+
+  setTimeout(()=>{
+    const fr=document.getElementById('cFront');
+    const bk=document.getElementById('cBack');
+    if(fr&&bk){
+      fr.classList.add('anim-out');
+      setTimeout(()=>{
+        fr.classList.add('hidden');fr.classList.remove('anim-out');
+        bk.classList.remove('hidden');bk.classList.add('anim-in');
+        if(blankCorrect)bk.classList.add('result-ok');
+        else bk.classList.add('result-ng');
+        setTimeout(()=>bk.classList.remove('anim-in'),240);
+      },190);
+    }
+  },400);
+
+  document.getElementById('checkBtnRow').style.display='none';
+  document.getElementById('nextBtnRow').style.display='flex';
+  document.getElementById('actionHint').textContent=
+    blankCorrect?'Great! Keep going 💪':'Not quite — review and move on 📖';
+}
+
+/* ── 카드 뒤집기 ── */
+function flipCard(){
+  if(mode===2)return;
+  const fr=document.getElementById('cFront');
+  const bk=document.getElementById('cBack');
+  if(!fr||!bk)return;
+  flipped=!flipped;
+  const hide=flipped?fr:bk, show=flipped?bk:fr;
+  hide.classList.add('anim-out');
+  setTimeout(()=>{
+    hide.classList.add('hidden');hide.classList.remove('anim-out');
+    show.classList.remove('hidden');show.classList.add('anim-in');
+    setTimeout(()=>show.classList.remove('anim-in'),240);
+  },190);
+  const fRow=document.getElementById('flipBtnRow');
+  const aRow=document.getElementById('answerBtns');
+  const hint=document.getElementById('actionHint');
+  if(flipped){
+    fRow.style.display='none';aRow.style.display='flex';
+    hint.textContent='Did you know this? Be honest 😊';
+  } else {
+    fRow.style.display='flex';aRow.style.display='none';
+    hint.textContent=`${qi+1} / ${queue.length} cards`;
+  }
+}
+
+/* ── 정답 처리 ── */
+function answer(ok){
+  const c=queue[qi];
+  const sc=document.getElementById('cScene');
+  if(ok){if(c.slot<4)c.slot++;done.add(c.id);if(sc)sc.classList.add('anim-bounce');}
+  else{c.slot=0;if(sc)sc.classList.add('anim-shake');}
+  refreshBox();updateProgress();saveProgress();
+  setTimeout(()=>{
+    qi++;
+    if(qi>=queue.length){
+      if(fil==='all'&&cat==='all'&&cards.every(c=>c.slot===4)){showDone();return;}
+      if(done.size===queue.length){showDone();return;}
+      buildQueue();
+    }
+    renderCard();
+  },ok?460:360);
+}
+
+/* ── 진행 / 필터 / 완료 ── */
+function updateProgress(){
+  const m=cards.filter(c=>c.slot===4).length;
+  document.getElementById('progFill').style.width=Math.round(m/cards.length*100)+'%';
+  document.getElementById('progLabel').textContent=`${m} / ${cards.length}`;
+}
+function setSlot(s,btn){
+  document.querySelectorAll('#slotFilter .f-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  fil=s==='all'?'all':parseInt(s);
+  buildQueue();renderCard();
+}
+function setCat(c,btn){
+  document.querySelectorAll('#catFilter .f-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  cat=c;buildQueue();renderCard();
+}
+function showDone(){document.getElementById('completion').classList.add('show')}
+function restartSession(){
+  document.getElementById('completion').classList.remove('show');
+  cards.forEach(c=>c.slot=0);
+  refreshBox();updateProgress();buildQueue();renderCard();
+}
+
+/* ── 시작 ── */
+(function(){
+  const saved=loadProgress();
+  buildBox();buildQueue();renderCard();updateProgress();
+  const lbl=document.getElementById('lastStudiedLabel');
+  if(saved&&saved.lastStudied){
+    lbl.textContent='마지막 학습: '+formatDate(saved.lastStudied);
+    showToast('📖 저장된 진행 내역을 불러왔어요 ('+formatDate(saved.lastStudied)+')');
+  } else {
+    lbl.textContent='처음 시작이에요 🎉';
+  }
+})();
+</script>
+</body>
+</html>
